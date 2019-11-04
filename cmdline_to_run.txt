@@ -1,0 +1,18 @@
+Commands for Running Programs in Terminal : 
+
+###Add changes to git
+git add .
+
+
+###Commit changes to git
+git commit -a
+
+
+###Push Changes to Github and run tests in Travis CI
+git push origin
+
+###Test changes - remove flake8 if you do not want to run syntax tests
+docker-compose run app sh -c "python manage.py test && flake8" 
+
+###Change to working App directory
+cd C:\Users\bsachs\Documents\GitHub\APIDev
