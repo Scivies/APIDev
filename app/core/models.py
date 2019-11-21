@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
                                         PermissionsMixin
-
+from django.conf import settings
 # Create your models here.
 # Create abstract user model
 # Auth user models
@@ -42,3 +42,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+class Tag(models.Model):
+    """Tag to be used for receipe and other apps"""
+    name = models.CharField(max_length=255)
+    #assign a foriegn key to the user models and what happes to the tags,
+    #when the user is deleted.
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+
+    )
+
+    #Add the tag strings to the model
+    def __str__(self):
+        return self.name

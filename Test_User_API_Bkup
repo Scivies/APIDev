@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework import status
 
@@ -7,9 +8,10 @@ from rest_framework import status
 functions. E.g. users created in during different tests/functions
 """
 CREATE_USER_URL = reverse('user:create')
-
+#create user URL to test the token
+TOKEN_URL = reverse('user:token')
 #Create a helper function to make calls to functions.
-def create_user(**param):
+def create_user(**params):
     return get_user_model().objects.create_user(**params)
 
 
@@ -24,7 +26,7 @@ class PublicUserApiTests(TestCase):
         Sample Payload"""
 
         payload = {
-            'email': 'test@Redrun.net',
+            'email': 'test4@Redrun.net',
             'password': 'testpassword',
             'name': 'RedRun TestName'
         }
@@ -39,12 +41,13 @@ class PublicUserApiTests(TestCase):
 #Do not send the password data in the payload
         self.assertNotIn('password', res.data)
 
+
 #Check to see if a user already exists
     def test_user_exists(self):
         """Test creating a user that already exists"""
 
         payload = {
-            'email': 'test@Redrun.net',
+            'email': 'Test_User_Exists@Faileded.net',
             'password': 'testpassword',
             'name': 'RedRun TestName'
         }
@@ -61,7 +64,7 @@ class PublicUserApiTests(TestCase):
     def test_password_too_short(self):
         """ The password must be more than 5 characters """
         payload = {
-            'email': 'test@Redrun.net',
+            'email': 'test4@Redrun.net',
             'password': 'testpassword',
             'name': 'RedRun TestName'
             }
@@ -69,8 +72,52 @@ class PublicUserApiTests(TestCase):
 
         self.assertTrue(res.status_code, status.HTTP_400_BAD_REQUEST)
 #Check to see if the email exists
-        user_exists = get_user_model().objects.filtered(
+        user_exists = get_user_model().objects.filter(
             email=payload['email']
             ).exists()
 #User shouldn't exist
         self.assertFalse(user_exists)
+
+###############################################################
+## CREATE TESTS FOR API CALLS FOR TOKENS
+##############################################################
+
+def test_create_token_for_user(self):
+    """Test that a token is created for the user"""
+    payload = {
+        'email': 'test4@Redrun.net',
+        'password': 'testpassword',
+        'name': 'RedRun TestName'
+        }
+    create_user(**payload)
+    res = self.client.post(TOKEN_URL, payload)
+
+    #Test for the post response. KEY AND TOKEN SHOULD BE returned @ 200 message
+    self.assertIn('token', res.data)
+    self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+#Create test for invalid credentials are given
+def test_create_token_invalid_credentials(self):
+    """Test that token is not created if invalid credentials are given"""
+    create_user(email='test@redrun.net', password='testpass')
+    payload = {'email': 'test_token@redrun.net', 'password': 'wrong_password'}
+    res = self.client.post()
+
+    self.assertNotIn('token', res.data)
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+def test_create_token_no_user(self):
+    """Test that token is not created if the user doesn't exist"""
+    payload = {'email': 'test_token@redrun.net', 'password': 'test_password'}
+    res.client.post(TOKEN_URL, payload)
+
+    self.assertNotIn('token', res.data)
+    self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+def test_create_token_missing_field(self):
+    """Test that email and password are required. We expect this to fail
+    because no password/eamil is passed"""
+    res = self.client.post(TOKEN_URL, { 'email': 'one', 'password': ''})
+
+    self.assertNotIn('token', res.data)
+    self.assertEqual(res.status_code, statu.HTTP_400_BAD_REQUEST)
