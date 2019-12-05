@@ -7,12 +7,48 @@ git add .
 ###Commit changes to git
 git commit -a
 
+###Migrate Changes ###
+docker-compose run --rm app sh -c "python manage.py makemigrations core"
 
 ###Push Changes to Github and run tests in Travis CI
 git push origin
 
 ###Test changes - remove flake8 if you do not want to run syntax tests
-docker-compose run app sh -c "python manage.py test && flake8" 
+
+docker-compose run app sh -c "python manage.py test"   ----- && flake8" 
 
 ###Change to working App directory
 cd C:\Users\bsachs\Documents\GitHub\APIDev
+
+###Create a new app in the project (e.g. Core, user, and recipe
+docker-compose run --rm app sh -c "python manage.py startapp recipe"
+
+###To build the project : Note - this may need to be done to have the correct services and settings running. 
+docker-compose build
+
+docker-compose up
+
+### If there are errors when trying to launch the APP tear down the app and build it back up####
+
+docker-compose down
+docker-compose up
+
+###Test users ###
+Email: Testuser_11162019_1@redrun.net
+Password: password
+token: 2476bdedb13251088314ae32de9bd646b62ba96f
+==============================================================================================
+
+C:\windows\system32>cd C:\Users\bsachs\Documents\GitHub\APIDev
+
+C:\Users\bsachs\Documents\GitHub\APIDev>docker-compose run app sh -c "python manage.py createsuperuser"
+Starting apidev_db_1 ... done                                                                                           Email: scivies@gmail.com
+Password:
+Password (again):
+Superuser created successfully.
+
+==================================
+APIs to call:
+1- When starting up the app a new user may need to be created to properly post/get/etc. for the app. 
+
+Use: http://127.0.0.1:8000/api/user/create/
