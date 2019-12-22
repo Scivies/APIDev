@@ -2,9 +2,22 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
                                         PermissionsMixin
 from django.conf import settings
+import uuid
+import os
 # Create your models here.
 # Create abstract user model
 # Auth user models
+
+def recipe_image_file_path(instance, filename):
+    """Generate file path for new recipe image"""
+    #split the filename, slice it with [-] then extract the extension with 1
+    #1 is the extension position in the slice [-]
+    ext = filename.split('.')[-1]
+    filename = f'{uuid.uuid4()}.{ext}'
+
+    return os.path.join('uploads/recipe/', filename)
+
+
 
 class UserManager(BaseUserManager):
 # Create and save new user
@@ -53,10 +66,10 @@ class Tag(models.Model):
         on_delete=models.CASCADE,
 
     )
-
     #Add the tag strings to the model
     def __str__(self):
         return self.name
+
 
 class Ingredient(models.Model):
     """Ingredient to be used in a receipe"""
@@ -70,6 +83,7 @@ class Ingredient(models.Model):
     def __str__(self):
         return self.name
 
+
 class Recipe(models.Model):
     """Receipe object for all receipes"""
     user = models.ForeignKey(
@@ -82,6 +96,7 @@ class Recipe(models.Model):
     link = models.CharField(max_length=255, blank=True)
     ingredients = models.ManyToManyField('Ingredient')
     tags = models.ManyToManyField('Tag')
+    image = models.ImageField(null=True, upload_to=recipe_image_file_path)
 
     def __str__(self):
         return self.title

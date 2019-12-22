@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
+from unittest.mock import patch
 
 #Create sample user for testing with tags, ...etc
 def sample_user(email='Testuser_11162019_1@redrun.net', password='password'):
@@ -78,3 +79,18 @@ class ModelTests(TestCase):
             price=15.99
 
         )
+
+        #function in the python uuid module that creates a uuid
+    @patch('uuid.uuid4')
+    def test_recipe_file_name_uuid(self, mock_uuid):
+        """Test that image is saved in the right location"""
+        """Mock the uuid function from the default uuid lib, change Value
+        and make sure it adds the corrilation"""
+        uuid = 'test-uuid'
+        #calls the @patch uuid function and returns the uuid to equal uuid above
+        mock_uuid.return_value = uuid
+        file_path = models.recipe_image_file_path(None, 'myimage.jpg')
+
+        #use "f" which will allow us to insert literal variables
+        exp_path = f'uploads/recipe/{uuid}.jpg'
+        self.assertEqual(file_path, exp_path)

@@ -126,5 +126,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+#Tell django where the media files are stored
+MEDIA_ROOT = '/vol/web/media'
+#Tell django where the static admin, python, css, etc. files are stored
+STATIC_ROOT = '/vol/web/static'
 
 AUTH_USER_MODEL = 'core.user'
